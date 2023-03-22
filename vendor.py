@@ -4,9 +4,9 @@ import streamlit as st
 state_transitions = {
     'start': {'coin': 'has_coin'},
     'has_coin': {'select_coke': 'dispense_coke', 'select_pepsi': 'dispense_pepsi', 'refund': 'start'},
-    'dispense_coke': {'refund': 'start', 'empty_stock': 'out_of_stock'},
-    'dispense_pepsi': {'refund': 'start', 'empty_stock': 'out_of_stock'},
-    'out_of_stock': {'coin': 'has_coin'},
+    'dispense_coke': {'refund': 'start', 'select_coke': 'dispense_coke'},
+    'dispense_pepsi': {'refund': 'start', 'select_pepsi': 'dispense_pepsi'},
+    'empty_stock': {'refund': 'start'},
 }
 
 class VendingMachine:
@@ -41,10 +41,14 @@ def main():
     
     st.title('Finite State Automata Vending Machine')
     
-    # Display the current state of the vending machine and the stock
+    # Display the current state of the vending machine
     st.write(f"Current state: {vending_machine.state}")
-    st.write(f"Coke stock: {vending_machine.stock['coke']}")
-    st.write(f"Pepsi stock: {vending_machine.stock['pepsi']}")
+    
+    # Display the possible inputs
+    st.write("Possible inputs: coin, select_coke, select_pepsi, refund")
+    
+    # Display the stock of the vending machine
+    st.write(f"Coke stock: {vending_machine.stock['coke']}, Pepsi stock: {vending_machine.stock['pepsi']}")
     
     # Get input from the user
     input_symbols = st.text_input('Enter input symbols separated by commas').split(',')
@@ -52,7 +56,10 @@ def main():
     # Process the input and update the state of the vending machine
     if input_symbols:
         if vending_machine.process(input_symbols):
-            st.write(f"Input accepted. New state: {vending_machine.state}")
+            if vending_machine.state == 'empty_stock':
+                st.write("Out of stock")
+            else:
+                st.write(f"Input accepted. New state: {vending_machine.state}")
         else:
             st.write(f"Input rejected. Current state: {vending_machine.state}")
 
